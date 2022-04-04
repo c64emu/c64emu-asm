@@ -1,3 +1,9 @@
+dist/c64asm.min.js
+tmp/
+
+.DS_Store
+
+
 # Logs
 logs
 *.log

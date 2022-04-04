@@ -1,0 +1,38 @@
+{
+    "name": "c64asm",
+    "version": "0.0.1",
+    "description": "C64 emulator for the web",
+    "main": "src/asm.js",
+    "scripts": {
+        "build": "tsc -noEmit && node ./build.js",
+        "webserver": "php -S localhost:8000"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/c64emu/c64emu-asm.git"
+    },
+    "keywords": [
+        "c64",
+        "emulator"
+    ],
+    "author": "Andreas Schwenk <contact@compiler-construction.com> (https://arts-and-sciences.com/)",
+    "license": "GPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/c64emu/c64emu-asm/issues"
+    },
+    "homepage": "https://github.com/c64emu/c64emu-asm#readme",
+    "dependencies": {
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^5.11.0",
+        "@typescript-eslint/parser": "^5.11.0",
+        "core-js": "^3.21.0",
+        "esbuild": "^0.14.21",
+        "eslint": "^8.9.0",
+        "prettier": "^2.5.1",
+        "ts-node": "^10.5.0",
+        "typedoc": "^0.22.11",
+        "typedoc-plugin-markdown": "^3.11.13",
+        "typescript": "^4.5.5"
+    }
+}
