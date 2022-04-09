@@ -181,25 +181,56 @@ class ASM_UnresolvedAddress {
     }
 }
 
+export interface ASM_Code_Format {
+    includeAddress: boolean;
+    matchSourceCode: boolean;
+    maxBytesPerRow: number; // only used, if matchSourceCode == false
+}
+
 export class ASM_Code {
     startAddress = 0;
     bytes: number[] = [];
     srcRows: number[] = [];
-    toString(columns = 8): string {
+    toString(format: ASM_Code_Format): string {
         let s = '';
-        for (let i = 0; i < this.bytes.length; i++) {
-            if (i % columns == 0)
+        if (format.matchSourceCode) {
+            let row = 1;
+            for (let i = 0; i < this.bytes.length; i++) {
+                const byte = this.bytes[i];
+                const byteRow = this.srcRows[i];
+                let incrementedRow = false;
+                while (row < byteRow) {
+                    s += '\n';
+                    row++;
+                    incrementedRow = true;
+                }
+                if (incrementedRow && format.includeAddress) {
+                    s +=
+                        (this.startAddress + i)
+                            .toString(16)
+                            .padStart(4, '0')
+                            .toUpperCase() + ': ';
+                }
+                s += byte.toString(16).padStart(2, '0').toUpperCase() + ' ';
+            }
+        } else {
+            for (let i = 0; i < this.bytes.length; i++) {
+                if (i % format.maxBytesPerRow == 0) {
+                    s += '\n$';
+                    if (format.includeAddress) {
+                        s +=
+                            (this.startAddress + i)
+                                .toString(16)
+                                .padStart(4, '0')
+                                .toUpperCase() + ': ';
+                    }
+                }
                 s +=
-                    '\n$' +
-                    (this.startAddress + i)
-                        .toString(16)
-                        .padStart(4, '0')
-                        .toUpperCase() +
-                    ': ';
-            s +=
-                this.bytes[i].toString(16).padStart(2, '0').toUpperCase() + ' ';
+                    this.bytes[i].toString(16).padStart(2, '0').toUpperCase() +
+                    ' ';
+            }
+            s = s.trim();
         }
-        s = s.trim();
         return s;
     }
 }

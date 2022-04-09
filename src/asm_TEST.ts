@@ -23,7 +23,11 @@ msg
 
 const assembler = new ASM_MOS6502();
 if (assembler.assemble(prog)) {
-    const mc = assembler.getMachineCode().toString(16);
+    const mc = assembler.getMachineCode().toString({
+        matchSourceCode: true,
+        includeAddress: true,
+        maxBytesPerRow: 8,
+    });
     console.log(mc);
 } else console.log('assemble failed. Error:' + assembler.getErrorString());
 
