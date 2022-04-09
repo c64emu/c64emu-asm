@@ -23,21 +23,8 @@ msg
 
 const assembler = new ASM_MOS6502();
 if (assembler.assemble(prog)) {
-    const mc = assembler.getMachineCode();
-    let s = '';
-    for (let i = 0; i < mc.bytes.length; i++) {
-        if (i % 8 == 0)
-            s +=
-                '\n$' +
-                (mc.startAddress + i)
-                    .toString(16)
-                    .padStart(4, '0')
-                    .toUpperCase() +
-                ': ';
-        s += mc.bytes[i].toString(16).padStart(2, '0').toUpperCase() + ' ';
-    }
-    s = s.trim();
-    console.log(s);
+    const mc = assembler.getMachineCode().toString(16);
+    console.log(mc);
 } else console.log('assemble failed. Error:' + assembler.getErrorString());
 
-// compare to https://www.masswerk.at/6502/assembler.html
+// TODO: compare to https://www.masswerk.at/6502/assembler.html

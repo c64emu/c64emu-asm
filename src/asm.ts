@@ -185,8 +185,22 @@ export class ASM_Code {
     startAddress = 0;
     bytes: number[] = [];
     srcRows: number[] = [];
-    constructor() {
-        //
+    toString(columns = 8): string {
+        let s = '';
+        for (let i = 0; i < this.bytes.length; i++) {
+            if (i % columns == 0)
+                s +=
+                    '\n$' +
+                    (this.startAddress + i)
+                        .toString(16)
+                        .padStart(4, '0')
+                        .toUpperCase() +
+                    ': ';
+            s +=
+                this.bytes[i].toString(16).padStart(2, '0').toUpperCase() + ' ';
+        }
+        s = s.trim();
+        return s;
     }
 }
 
