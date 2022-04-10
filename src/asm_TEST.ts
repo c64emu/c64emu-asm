@@ -27,6 +27,7 @@ if (assembler.assemble(prog)) {
         matchSourceCode: true,
         includeAddress: true,
         maxBytesPerRow: 8,
+        includeSourceCode: true,
     });
     console.log(mc);
 } else console.log('assemble failed. Error:' + assembler.getErrorString());
