@@ -46,7 +46,7 @@ CPY     C0 C4       CC                          Compare Memory and Index Y
 DEC        C6 D6    CE DE                       Decrement Memory by One
 DEX  CA                                         Decrement Index X by One
 DEY  88                                         Decrement Index Y by One
-EOR     49 45 55    4D 5D 59    41 51           Exlusive-OR Memory with Accu.
+EOR     49 45 55    4D 5D 59    41 51           Exclusive-OR Memory with Accu.
 INC        E6 F6    EE FE                       Increment Memory by One
 INX  E8                                         Increment Index X by One
 INY  C8                                         Increment Index Y by One
@@ -184,10 +184,12 @@ class ASM_UnresolvedAddress {
 export interface ASM_Code_Format {
     includeAddress: boolean;
     matchSourceCode: boolean;
-    maxBytesPerRow: number; // only used, if matchSourceCode == false
+    includeSourceCode: boolean; // only considered, if matchSourceCode == true
+    maxBytesPerRow: number; // only considered, if matchSourceCode == false
 }
 
 export class ASM_Code {
+    srcLines: string[] = [];
     startAddress = 0;
     bytes: number[] = [];
     srcRows: number[] = [];
@@ -195,23 +197,42 @@ export class ASM_Code {
         let s = '';
         if (format.matchSourceCode) {
             let row = 1;
-            for (let i = 0; i < this.bytes.length; i++) {
-                const byte = this.bytes[i];
-                const byteRow = this.srcRows[i];
+            let col = 1;
+            const n = this.bytes.length;
+            for (let i = 0; i < n + 1; i++) {
+                const byte = i < n ? this.bytes[i] : 0;
+                const byteRow =
+                    i < n ? this.srcRows[i] : this.srcRows[i - 1] + 1;
                 let incrementedRow = false;
                 while (row < byteRow) {
+                    if (format.includeSourceCode) {
+                        while (col < 20) {
+                            s += ' ';
+                            col++;
+                        }
+                        s += this.srcLines[row - 1];
+                    }
                     s += '\n';
+                    col = 1;
                     row++;
                     incrementedRow = true;
                 }
+                if (i == n) break;
                 if (incrementedRow && format.includeAddress) {
                     s +=
                         (this.startAddress + i)
                             .toString(16)
                             .padStart(4, '0')
                             .toUpperCase() + ': ';
+                    col += 6;
                 }
-                s += byte.toString(16).padStart(2, '0').toUpperCase() + ' ';
+                if (!format.includeSourceCode || col < 16) {
+                    s += byte.toString(16).padStart(2, '0').toUpperCase() + ' ';
+                    col += 3;
+                } else if (col < 18) {
+                    s += '.. ';
+                    col += 3;
+                }
             }
         } else {
             for (let i = 0; i < this.bytes.length; i++) {
@@ -253,6 +274,7 @@ export class ASM_MOS6502 {
     private tokenRow = 1;
 
     assemble(src: string): boolean {
+        src = src.trim() + '\n';
         this.src = src;
         this.srcLen = src.length;
         this.srcPos = 0;
@@ -260,6 +282,7 @@ export class ASM_MOS6502 {
         this.token = '';
         this.errorString = '';
         this.machineCode = new ASM_Code();
+        this.machineCode.srcLines = src.split('\n');
         this.labels = {};
         this.unresolvedAddresses = [];
         // parse and generate machine code
@@ -552,7 +575,7 @@ export class ASM_MOS6502 {
                 this.srcCol += k;
                 this.srcPos = i;
             }
-            // skip whitespaces (not in first column)
+            // skip whitespace characters (not in first column)
             if (
                 this.srcPos < this.srcLen &&
                 this.srcCol > 1 &&
