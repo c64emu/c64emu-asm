@@ -4,6 +4,9 @@
  * mailto:contact@compiler-construction.com                                   *
  *****************************************************************************/
 
+// TODO: '##'
+const screen_0ff =
+    '@ABCDEFGHIJKLMNOPQRSTUVWXYZ[£]## !"#$%&´()*+,-./0123456789:;<=>?';
 const petscii_32ff =
     ' !"#$%&´()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[£]';
 
@@ -322,7 +325,8 @@ export class ASM_MOS6502 {
     // line = "*" "=" HEX "\n"
     //   | ID "\n"
     //   | " " ID operand "\n"
-    //   | " " "." "text" STR "\n";
+    //   | " " "." "text" STR "\n"
+    //   | " " "." "screen" STR "\n";
     private parseLine(): void {
         if (this.isDEL('*')) {
             this.next();
@@ -349,11 +353,17 @@ export class ASM_MOS6502 {
                 this.parseOperand(instruction);
             } else {
                 this.DEL('.');
-                this.DEL('text');
+                if (!this.isDEL('text') && !this.isDEL('screen'))
+                    this.error("expected 'text' or 'screen'");
+                const isText = this.isDEL('text');
+                this.next();
                 const str = this.STR();
                 for (const ch of str) {
-                    if (petscii_32ff.includes(ch)) {
+                    if (isText && petscii_32ff.includes(ch)) {
                         const b = petscii_32ff.indexOf(ch) + 32;
+                        this.writeMachineCodeByte(b);
+                    } else if (!isText && screen_0ff.includes(ch)) {
+                        const b = screen_0ff.indexOf(ch);
                         this.writeMachineCodeByte(b);
                     } else this.error("unknown character'" + ch + '');
                 }

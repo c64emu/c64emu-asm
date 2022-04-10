@@ -18,7 +18,7 @@ next
     bne next
     jmp *
 msg
-    .text "HELLO, WORLD!"
+    .screen "HELLO, WORLD!"
 `;
 
 const assembler = new ASM_MOS6502();
