@@ -1,5 +1,5 @@
 /******************************************************************************
- * C64 Emulator -- for the web                                                *
+ * C64 Assembler -- for the web                                               *
  * (c) 2022 by Andreas Schwenk, License: GPLv3                                *
  * mailto:contact@compiler-construction.com                                   *
  *****************************************************************************/

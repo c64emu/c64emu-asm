@@ -1,3 +1,9 @@
+/******************************************************************************
+ * C64 Assembler -- for the web                                               *
+ * (c) 2022 by Andreas Schwenk, License: GPLv3                                *
+ * mailto:contact@compiler-construction.com                                   *
+ *****************************************************************************/
+
 import * as asm from './asm';
 
 export interface AssembleResult {
