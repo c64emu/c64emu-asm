@@ -19,6 +19,7 @@ next
     jmp *
 msg
     .screen "HELLO, WORLD!"
+    .screen "TEST"
 `;
 
 const assembler = new ASM_MOS6502();

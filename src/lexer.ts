@@ -187,6 +187,7 @@ export class Lexer {
                 else break;
             } else if (this.src[i] === '"') {
                 this.token += this.src[i];
+                i++;
                 k++;
                 break;
             } else if (this.src[i] === '\n') {

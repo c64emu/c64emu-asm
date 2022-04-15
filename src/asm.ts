@@ -37,7 +37,9 @@ export class ASM_MOS6502 {
                 // TODO: catch parse errors!
                 while (!this.lexer.isEnd() && this.lexer.isDEL('\n'))
                     this.lexer.next();
-                if (!this.lexer.isEnd()) this.parseLine();
+                if (!this.lexer.isEnd()) {
+                    this.parseLine();
+                }
             }
         } catch (error) {
             return false;
@@ -73,6 +75,7 @@ export class ASM_MOS6502 {
     //   | (" "|"\t") ID operand "\n"
     //   | (" "|"\t") "." "text" STR "\n"
     //   | (" "|"\t") "." "screen" STR "\n";
+    //   | (" "|"\t") "." "byte" HEX { "," HEX } "\n";
     private parseLine(): void {
         if (this.lexer.isDEL('*')) {
             this.lexer.next();
@@ -97,26 +100,46 @@ export class ASM_MOS6502 {
                     this.lexer.error("unknown instruction '" + mnemonic + "'");
                 const instruction = instr.mos6502Instructions[mnemonic];
                 this.parseOperand(instruction);
-            } else {
-                this.lexer.DEL('.');
-                if (!this.lexer.isDEL('text') && !this.lexer.isDEL('screen'))
-                    this.lexer.error("expected 'text' or 'screen'");
-                const isText = this.lexer.isDEL('text');
+            } else if (this.lexer.isDEL('.')) {
                 this.lexer.next();
-                const str = this.lexer.STR();
-                for (const ch of str) {
-                    if (isText && petscii_32ff.includes(ch)) {
-                        const b = petscii_32ff.indexOf(ch) + 32;
-                        this.writeMachineCodeByte(b);
-                    } else if (!isText && screen_0ff.includes(ch)) {
-                        const b = screen_0ff.indexOf(ch);
-                        this.writeMachineCodeByte(b);
-                    } else this.lexer.error("unknown character'" + ch + '');
+                if (this.lexer.isDEL('text')) {
+                    this.lexer.next();
+                    const str = this.lexer.STR();
+                    for (const ch of str) {
+                        if (petscii_32ff.includes(ch)) {
+                            const b = petscii_32ff.indexOf(ch) + 32;
+                            this.writeMachineCodeByte(b);
+                        } else this.lexer.error("unknown character'" + ch + '');
+                    }
+                } else if (this.lexer.isDEL('screen')) {
+                    this.lexer.next();
+                    const str = this.lexer.STR();
+                    for (const ch of str) {
+                        if (screen_0ff.includes(ch)) {
+                            const b = screen_0ff.indexOf(ch);
+                            this.writeMachineCodeByte(b);
+                        } else this.lexer.error("unknown character'" + ch + '');
+                    }
+                } else if (this.lexer.isDEL('byte')) {
+                    this.lexer.next();
+                    const hex = this.lexer.HEX();
+                    if (hex.length != 2)
+                        this.lexer.error('hex value must be a byte');
+                    this.writeMachineCodeByte(parseInt(hex, 16));
+                    while (this.lexer.isDEL(',')) {
+                        this.lexer.next();
+                        const hex = this.lexer.HEX();
+                        if (hex.length != 2)
+                            this.lexer.error('hex value must be a byte');
+                        this.writeMachineCodeByte(parseInt(hex, 16));
+                    }
+                } else {
+                    this.lexer.error("expected 'text' or 'screen' or 'byte'");
                 }
+                this.lexer.DEL('\n');
+            } else {
+                this.lexer.error('expected label or instruction');
             }
-            this.lexer.DEL('\n');
-        } else {
-            this.lexer.error('expected label or instruction');
         }
     }
 
