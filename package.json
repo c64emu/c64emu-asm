@@ -1,10 +1,10 @@
 {
-    "name": "c64asm",
-    "version": "0.0.3",
+    "name": "@c64emu/c64asm",
+    "version": "0.0.4",
     "description": "C64 assembler for the web",
-    "main": "src/asm.js",
+    "main": "lib/index.js",
     "scripts": {
-        "build": "tsc -noEmit && node ./build.js",
+        "build": "tsc && node ./build.js",
         "webserver": "php -S localhost:8000"
     },
     "repository": {

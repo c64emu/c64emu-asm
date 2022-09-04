@@ -1,5 +1,5 @@
 dist/c64asm.min.js
-tmp/
+lib/
 
 .DS_Store
 
